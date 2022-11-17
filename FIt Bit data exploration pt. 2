@@ -1,0 +1,26 @@
+Select * from `hourly-instensity.hourly_intensity.Hourly_intensity`
+  
+
+--Average intesity of users
+SELECT DISTINCT Id, AVG(TotalIntensity) AS avg_intesity
+ FROM `hourly-instensity.hourly_intensity.Hourly_intensity` 
+ GROUP BY Id
+ ORDER BY Id
+ 
+ --Hour where users were doing most intense activity
+  
+  WITH MAX_I AS 
+  (
+  SELECT Id, MAX(TotalIntensity), CONCAT(Id, MAX(TotalIntensity)) AS TTI
+  FROM `hourly-instensity.hourly_intensity.Hourly_intensity`
+  GROUP BY Id) 
+ SELECT D.Id, D.ActivityHour, D.TotalIntensity
+  FROM `hourly-instensity.hourly_intensity.Hourly_intensity`  D
+  INNER JOIN MAX_I m ON m.TTI = CONCAT(D.Id, D.TotalIntensity)
+  ORDER By D.Id
+ 
+ --double check above query
+ SELECT *
+ FROM `hourly-instensity.hourly_intensity.Hourly_intensity`
+ WHERE Id = 8378563200 
+ ORDER BY TotalIntensity DESC
