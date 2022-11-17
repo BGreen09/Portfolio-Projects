@@ -1,0 +1,40 @@
+-- How many users' data are in this table?
+SELECT COUNT (DISTINCT Id) AS Users
+ FROM `case-study-368317.Daily_Activity.DailyActivity` 
+
+--What is the average active distance of the users?
+SELECT Id, AVG(Total_Active_Distance) AS avg_active_distance
+ FROM `case-study-368317.Daily_Activity.DailyActivity` 
+GROUP BY Id 
+ORDER BY Id ASC
+--What are the average calories burned by each user?
+SELECT Id, AVG(Calories) AS avg_calories_burned
+ FROM `case-study-368317.Daily_Activity.DailyActivity` 
+ 
+GROUP BY Id 
+ORDER BY Id ASC
+--What are the avg total steps of the users?
+SELECT Id, AVG(TotalSteps) AS avg_total_steps
+FROM `case-study-368317.Daily_Activity.DailyActivity` 
+GROUP By Id
+ORDER BY Id
+-- What are the maximum steps, calories burned, and distances of each user?
+SELECT ID, MAX(TotalSteps) AS maxs_steps, MAX(Total_Active_Distance) AS max_distance, MAX(Calories) AS max_calories_burned
+FROM `case-study-368317.Daily_Activity.DailyActivity` 
+GROUP By Id
+ORDER By Id
+-- Average Very active minutes and calories burned
+SELECT Id, AVG(VeryActiveMinutes) AS avg_veryactive, AVG(calories) AS avg_calories
+FROM `case-study-368317.Daily_Activity.DailyActivity` 
+GROUP BY Id
+ORDER BY Id
+-- Average Total steps and avg calories 
+SELECT Id, AVG(TotalSteps) AS Avg_totalsteps,AVG(calories) AS avg_calories
+FROM `case-study-368317.Daily_Activity.DailyActivity` 
+GROUP BY Id
+ORDER BY Id
+--Create a new column that is the sum of avg total steps and avg total active distance making a new metric to compare with total avg calories for each user CREATE VIZ
+SELECT Id, (AVG(TotalSteps) + AVG(Total_Active_Distance)) AS Total_Activity, AVG(Calories) AS avg_calories
+FROM `case-study-368317.Daily_Activity.DailyActivity`
+GROUP By Id
+Order By Id
