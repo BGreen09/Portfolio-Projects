@@ -1,0 +1,90 @@
+SELECT * 
+FROM `sql-data-cleaning-369319.HousingData.housing` LIMIT 5
+---Data Cleaning log
+
+--check date to see date format
+SELECT SaleDate5
+FROM `sql-data-cleaning-369319.HousingData.housing` 
+
+--Populate property address date
+SELECT PropertyAddress4
+FROM `sql-data-cleaning-369319.HousingData.housing` 
+
+SELECT *
+FROM `sql-data-cleaning-369319.HousingData.housing` 
+WHERE PropertyAddress4 is null
+ 
+SELECT *
+FROM `sql-data-cleaning-369319.HousingData.housing` 
+ORDER BY ParcelID2
+
+SELECT a.ParcelID2, a.PropertyAddress4, b.ParcelID2, b.PropertyAddress4, COALESCE(a.PropertyAddress4,b.PropertyAddress4)
+FROM `sql-data-cleaning-369319.HousingData.housing` a
+JOIN `sql-data-cleaning-369319.HousingData.housing` b 
+ON a.ParcelID2=b.ParcelID2
+AND a.UniqueID1 <> b.UniqueID1
+WHERE a.PropertyAddress4 is null
+
+UPDATE HousingData.housing
+SET PropertyAddress4 = COALESCE(a.PropertyAddress4,b.PropertyAddress4)
+FROM `sql-data-cleaning-369319.HousingData.housing` a
+JOIN `sql-data-cleaning-369319.HousingData.housing` b 
+ON a.ParcelID2=b.ParcelID2
+AND a.UniqueID1 <> b.UniqueID1
+WHERE a.PropertyAddress4 is null
+
+---Breaking out address into individual columns (address, city)
+SELECT PropertyAddress4
+FROM `sql-data-cleaning-369319.HousingData.housing` LIMIT 10
+
+SELECT 
+SPLIT(PropertyAddress4, ',')[OFFSET(0)] AS Address,
+SPLIT(PropertyAddress4, ',')[OFFSET(1)] AS city
+FROM `sql-data-cleaning-369319.HousingData.housing`
+
+SELECT OwnerAddress10
+FROM `sql-data-cleaning-369319.HousingData.housing`
+
+SELECT 
+SPLIT(OwnerAddress10, ',')[OFFSET(0)] AS address,
+SPLIT(OwnerAddress10, ',')[OFFSET(1)] as city,
+SPLIT(OwnerAddress10, ',')[OFFSET(2)] AS state
+FROM `sql-data-cleaning-369319.HousingData.housing`
+
+-- Change Y and N to Yes and No in "Sold as vacant" field
+Select DISTINCT(SoldAsVacant8), COUNT(SoldAsVacant8)
+FROM `sql-data-cleaning-369319.HousingData.housing`
+GROUP BY SoldAsVacant8
+ORDER BY 2
+
+SELECT SoldAsVacant8, 
+CASE When soldasvacant8 = true THEN 'Yes' WHEN soldasvacant8 = false THEN 'No' END AS soldasvacant
+FROM `sql-data-cleaning-369319.HousingData.housing`
+
+-- Remove Duplicates
+--This query observes all duplicates
+WITH RowNumCTE AS(
+SELECT *, 
+ROW_NUMBER() OVER(
+  PARTITION BY ParcelID2,PropertyAddress4,SalePrice6,SaleDate5,LegalReference7
+  ORDER BY UniqueID1
+) row_num
+FROM `sql-data-cleaning-369319.HousingData.housing`
+)
+SELECT * 
+FROM RowNumCTE
+WHERE row_num>1
+ORDER BY PropertyAddress4
+
+--Deleting the duplicates pulled from above query
+WITH RowNumCTE AS(
+SELECT *, 
+ROW_NUMBER() OVER(
+  PARTITION BY ParcelID2,PropertyAddress4,SalePrice6,SaleDate5,LegalReference7
+  ORDER BY UniqueID1
+) row_num
+FROM `sql-data-cleaning-369319.HousingData.housing`
+)
+DELETE 
+FROM RowNumCTE
+WHERE row_num>1
